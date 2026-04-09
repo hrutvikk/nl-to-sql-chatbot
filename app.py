@@ -27,6 +27,9 @@ if "prefill" not in st.session_state:
 if "last_response" not in st.session_state:
     st.session_state.last_response = None
 
+if "run_query" not in st.session_state:
+    st.session_state.run_query = False
+
 # ── Custom CSS ───────────────────────────────────────────
 st.markdown("""
 <style>
@@ -37,102 +40,33 @@ st.markdown("""
             linear-gradient(180deg, #0b1020 0%, #111827 100%);
         color: #e5e7eb;
     }
-    .block-container {
-        padding-top: 2rem;
-        padding-bottom: 2rem;
-        max-width: 1500px;
-    }
+    .block-container { padding-top: 2rem; padding-bottom: 2rem; max-width: 1500px; }
     h1, h2, h3, h4, h5, h6 { color: #f9fafb !important; letter-spacing: -0.02em; }
     p, div, label, span { color: #d1d5db; }
     section[data-testid="stSidebar"] {
         background: linear-gradient(180deg, #0f172a 0%, #111827 100%);
         border-right: 1px solid rgba(255,255,255,0.06);
     }
-    .sidebar-brand {
-        padding: 1rem 0.5rem 1.25rem 0.5rem;
-        margin-bottom: 1rem;
-        border-bottom: 1px solid rgba(255,255,255,0.08);
-    }
-    .brand-badge {
-        display: inline-block;
-        padding: 0.35rem 0.7rem;
-        border-radius: 999px;
-        background: linear-gradient(90deg, #6366f1, #06b6d4);
-        color: white;
-        font-size: 0.75rem;
-        font-weight: 700;
-        margin-bottom: 0.75rem;
-        box-shadow: 0 8px 24px rgba(99,102,241,0.35);
-    }
+    .sidebar-brand { padding: 1rem 0.5rem 1.25rem 0.5rem; margin-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .brand-badge { display: inline-block; padding: 0.35rem 0.7rem; border-radius: 999px; background: linear-gradient(90deg, #6366f1, #06b6d4); color: white; font-size: 0.75rem; font-weight: 700; margin-bottom: 0.75rem; box-shadow: 0 8px 24px rgba(99,102,241,0.35); }
     .brand-title { font-size: 1.25rem; font-weight: 800; color: #ffffff; margin: 0; }
     .brand-subtitle { font-size: 0.9rem; color: #94a3b8; margin-top: 0.25rem; line-height: 1.5; }
-    .hero-card {
-        background: linear-gradient(135deg, rgba(99,102,241,0.18), rgba(6,182,212,0.10));
-        border: 1px solid rgba(255,255,255,0.08);
-        border-radius: 24px;
-        padding: 1.6rem 1.6rem 1.3rem 1.6rem;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.20);
-        margin-bottom: 1rem;
-    }
-    .hero-top {
-        display: inline-block;
-        padding: 0.35rem 0.75rem;
-        border-radius: 999px;
-        background: rgba(255,255,255,0.08);
-        border: 1px solid rgba(255,255,255,0.08);
-        font-size: 0.78rem;
-        font-weight: 600;
-        color: #cbd5e1;
-        margin-bottom: 0.9rem;
-    }
+    .hero-card { background: linear-gradient(135deg, rgba(99,102,241,0.18), rgba(6,182,212,0.10)); border: 1px solid rgba(255,255,255,0.08); border-radius: 24px; padding: 1.6rem 1.6rem 1.3rem 1.6rem; box-shadow: 0 10px 30px rgba(0,0,0,0.20); margin-bottom: 1rem; }
+    .hero-top { display: inline-block; padding: 0.35rem 0.75rem; border-radius: 999px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.08); font-size: 0.78rem; font-weight: 600; color: #cbd5e1; margin-bottom: 0.9rem; }
     .hero-title { font-size: 2.1rem; font-weight: 800; color: #ffffff; line-height: 1.15; margin-bottom: 0.45rem; }
     .hero-subtitle { font-size: 1rem; color: #cbd5e1; line-height: 1.7; max-width: 900px; }
-    .metric-card {
-        background: rgba(17, 24, 39, 0.82);
-        border: 1px solid rgba(255,255,255,0.08);
-        border-radius: 20px;
-        padding: 1rem 1.1rem;
-        box-shadow: 0 8px 25px rgba(0,0,0,0.18);
-        transition: all 0.25s ease;
-        min-height: 110px;
-    }
-    .metric-card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 14px 32px rgba(0,0,0,0.24);
-        border-color: rgba(99,102,241,0.35);
-    }
+    .metric-card { background: rgba(17, 24, 39, 0.82); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; padding: 1rem 1.1rem; box-shadow: 0 8px 25px rgba(0,0,0,0.18); transition: all 0.25s ease; min-height: 110px; }
+    .metric-card:hover { transform: translateY(-3px); box-shadow: 0 14px 32px rgba(0,0,0,0.24); border-color: rgba(99,102,241,0.35); }
     .metric-label { color: #94a3b8; font-size: 0.82rem; font-weight: 600; margin-bottom: 0.55rem; text-transform: uppercase; letter-spacing: 0.06em; }
     .metric-value { color: white; font-size: 1.8rem; font-weight: 800; line-height: 1.1; margin-bottom: 0.25rem; }
     .metric-help { color: #cbd5e1; font-size: 0.88rem; }
-    .panel-card {
-        background: rgba(17, 24, 39, 0.82);
-        border: 1px solid rgba(255,255,255,0.08);
-        border-radius: 22px;
-        padding: 1.15rem 1.15rem 1rem 1.15rem;
-        box-shadow: 0 10px 28px rgba(0,0,0,0.18);
-        margin-bottom: 1rem;
-    }
+    .panel-card { background: rgba(17, 24, 39, 0.82); border: 1px solid rgba(255,255,255,0.08); border-radius: 22px; padding: 1.15rem 1.15rem 1rem 1.15rem; box-shadow: 0 10px 28px rgba(0,0,0,0.18); margin-bottom: 1rem; }
     .panel-title { font-size: 1.05rem; font-weight: 700; color: #ffffff; margin-bottom: 0.35rem; }
     .panel-subtitle { font-size: 0.92rem; color: #94a3b8; margin-bottom: 0.9rem; }
     .muted-text { color: #94a3b8; font-size: 0.92rem; }
-    div.stButton > button {
-        border-radius: 14px !important;
-        border: 1px solid rgba(255,255,255,0.10) !important;
-        padding: 0.7rem 1rem !important;
-        font-weight: 600 !important;
-        transition: all 0.25s ease !important;
-        box-shadow: 0 6px 18px rgba(0,0,0,0.12) !important;
-    }
-    div.stButton > button:hover {
-        transform: translateY(-1px);
-        border-color: rgba(99,102,241,0.45) !important;
-        box-shadow: 0 12px 24px rgba(0,0,0,0.18) !important;
-    }
-    div[data-baseweb="input"] > div {
-        background: rgba(15, 23, 42, 0.9) !important;
-        border-radius: 16px !important;
-        border: 1px solid rgba(255,255,255,0.08) !important;
-    }
+    div.stButton > button { border-radius: 14px !important; border: 1px solid rgba(255,255,255,0.10) !important; padding: 0.7rem 1rem !important; font-weight: 600 !important; transition: all 0.25s ease !important; box-shadow: 0 6px 18px rgba(0,0,0,0.12) !important; }
+    div.stButton > button:hover { transform: translateY(-1px); border-color: rgba(99,102,241,0.45) !important; box-shadow: 0 12px 24px rgba(0,0,0,0.18) !important; }
+    div[data-baseweb="input"] > div { background: rgba(15, 23, 42, 0.9) !important; border-radius: 16px !important; border: 1px solid rgba(255,255,255,0.08) !important; }
     div[data-baseweb="input"] input { color: #f9fafb !important; }
     button[data-baseweb="tab"] { border-radius: 12px !important; padding: 0.6rem 0.9rem !important; }
     .streamlit-expanderHeader { font-weight: 700; color: #f8fafc; }
@@ -251,19 +185,18 @@ if nav == "Ask Query":
         ex_cols = st.columns(2, gap="small")
         for i, example in enumerate(examples):
             with ex_cols[i % 2]:
-                # FIX: write to 'prefill' not 'question' to avoid key conflict
                 if st.button(example, key=f"example_{i}", use_container_width=True):
                     st.session_state.prefill = example
+                    st.session_state.run_query = True
                     st.rerun()
 
         st.markdown("")
 
-        # FIX: use 'prefill' as the value, bind widget to its own key 'question_input'
+        # No key= here so Streamlit always respects the value parameter
         question = st.text_input(
             label="Your question",
             value=st.session_state.prefill,
             placeholder="e.g. Which city had the lowest profit last year?",
-            key="question_input"
         )
 
         ask_col, info_col = st.columns([1, 2.2])
@@ -294,12 +227,18 @@ if nav == "Ask Query":
             st.info("**Step 2**\n\nReview the answer, SQL, results, and chart.")
 
     # ── Main logic ────────────────────────────────────────
-    if run and question.strip():
+    # Trigger query from either Ask button OR example button click
+    should_run = (run and question.strip()) or st.session_state.run_query
+    active_question = question.strip() or st.session_state.prefill
+
+    if should_run and active_question:
+        st.session_state.run_query = False  # reset flag
+
         with st.spinner("Thinking..."):
-            response = ask(question)
+            response = ask(active_question)
 
         st.session_state.last_response = response
-        st.session_state.prefill = ""  # clear prefill after running
+        st.session_state.prefill = ""
 
         if response["error"]:
             st.error(f"Something went wrong: {response['error']}")
@@ -307,7 +246,7 @@ if nav == "Ask Query":
             df = response["result"]
 
             st.session_state.history.append({
-                "question": question,
+                "question": active_question,
                 "answer": response["answer"],
                 "sql": response["sql"]
             })
@@ -350,13 +289,13 @@ if nav == "Ask Query":
                     if pd.api.types.is_numeric_dtype(df[col_y]):
                         if len(df) <= 10:
                             fig = px.bar(
-                                df, x=col_x, y=col_y, title=question,
+                                df, x=col_x, y=col_y, title=active_question,
                                 color=col_x,
                                 color_discrete_sequence=px.colors.qualitative.Set2
                             )
                         else:
                             fig = px.line(
-                                df, x=col_x, y=col_y, title=question, markers=True
+                                df, x=col_x, y=col_y, title=active_question, markers=True
                             )
                         fig.update_layout(
                             showlegend=False,
