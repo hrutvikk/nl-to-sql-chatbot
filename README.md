@@ -19,7 +19,10 @@ You type a question like _"Which region had the highest sales in 2017?"_ and the
 
 ## Screenshot
 
-> _Add a screenshot of your app here after deployment_
+<img width="2550" height="1177" alt="image" src="https://github.com/user-attachments/assets/3a2f44e5-4000-48dd-8ff4-b566a72ed7ac" />
+<img width="1717" height="986" alt="image" src="https://github.com/user-attachments/assets/002b1e4f-4a7c-4a7c-be32-ad6c1579e689" />
+<img width="1768" height="805" alt="image" src="https://github.com/user-attachments/assets/cd788f35-fd9d-45b9-8b62-4d009e91c5ac" />
+<img width="1700" height="463" alt="image" src="https://github.com/user-attachments/assets/c56c10cf-feb7-4a28-a870-d039088a8af9" />
 
 ---
 
