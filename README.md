@@ -2,7 +2,7 @@
 
 A full-stack AI-powered analytics chatbot that converts plain English questions into SQL queries, runs them against a real sales database, and returns answers with interactive charts.
 
-**Live Demo:** [your-app-url-here](https://hrutvikk-nl-to-sql-chatbot.streamlit.app)
+**Live Demo:** [Click-Here](https://nl-to-sql-chatbot-rwjbldz6yd9mfhhopms3ac.streamlit.app/)
 
 ---
 
